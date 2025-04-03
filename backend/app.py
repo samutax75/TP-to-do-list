@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-tasks = ["Ranger ma chambre", "Preparer à manger", "acheter le pain"]
+tasks = ["Ranger ma chambre", "Preparer à manger", "acheter le pain", ["aller au basket"]]
 
 
-@app.route("/")
+@app.route("/", methods=['GET'])
 def get_tasks():
     return tasks
 
@@ -15,6 +15,6 @@ def add_tasks():
     tasks.append(data['title'])
     return jsonify({'message': 'Task added successfully'}), 201
 
-
+ 
 if __name__ == '__main__':
-    app.run(debug=True)
+        app.run(debug=True)
