@@ -2,17 +2,22 @@ from flask import Flask, request, jsonify
 import sqlite3
 
 app = Flask(__name__)
-tasks = ["Ranger ma chambre", "Preparer à manger", "acheter le pain", "aller au basket"]
+tasks = ["acheter du pain"]
+
+
+@app.route("/tasks", methods=['GET'])
+def get_tasks():
+    return tasks
 
 @app.route("/",methods=['GET'])
 def home():
     return"Bienvenue sur la page d'accueil"
-    
 
 
-@app.route("/", methods=['GET'])
-def get_tasks():
-    return tasks
+@app.route("/tasks/<task>", methods=['PUT'])
+def del_task(task):
+    return f" je vais supprimer, {task}"
+
 
 
 @app.route("/tasks", methods=['POST'])
@@ -20,7 +25,6 @@ def add_tasks():
     data = request.get_json()
     tasks.append(data['title'])
     return jsonify({'message': 'Task added successfully'}), 201
-
 
 
  
