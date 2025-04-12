@@ -24,9 +24,11 @@ def heure():
     heure_formattee=f"{h:02d}:{m:02d}:{s:02d}"
     return f"L'heure acteuelle est :{heure_formattee}"
 
-@app.route("/tasks/<task>", methods=['PUT'])
+
+@app.route("/tasks/<task>", methods=['DELETE'])
 def del_task(task):
-    return f" je vais supprimer, {task}"
+    tasks.remove(task)
+    return f" La tâche  {task} à été supprimer"
 
 
 
