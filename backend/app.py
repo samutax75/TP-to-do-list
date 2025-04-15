@@ -1,28 +1,18 @@
 from flask import Flask, request, jsonify
-import sqlite3
-import datetime
 
 app = Flask(__name__)
-tasks = ["acheter du pain","aller au basket"]
+tasks = {
+    "Samir":"Apprendre Flask",
+    "Mehdi":"Partir au USA en Août 2025",
+    "Lily":"Ranger sa chambre"
+    }
+
+# tasks=["Apprendre Flask","Partir au USA en Août 2025",]
 
 
 @app.route("/tasks", methods=['GET'])
 def get_tasks():
-    return tasks
-
-
-@app.route("/",methods=['GET'])
-def home():
-    return"Bienvenue sur la page d'accueil"
-
-@app.route("/heure")
-def heure():
-    date_heure=datetime.datetime.now()
-    h=date_heure.hour
-    m=date_heure.minute
-    s=date_heure.second
-    heure_formattee=f"{h:02d}:{m:02d}:{s:02d}"
-    return f"L'heure acteuelle est :{heure_formattee}"
+    return jsonify({"tasks":tasks})
 
 
 @app.route("/tasks/<task>", methods=['DELETE'])
@@ -35,8 +25,8 @@ def del_task(task):
 @app.route("/tasks", methods=['POST'])
 def add_tasks():
     data = request.get_json()
-    tasks.append(data['title'])
-    return jsonify({'message': 'Task added successfully'}), 201
+    tasks.append(data["title"])
+    return jsonify({'message': 'Task added successfully',}), 201
 
 
  
