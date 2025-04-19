@@ -1,15 +1,21 @@
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-tasks = {
-    "nom": "samir",
-    "tache": "aller au match de basket"
-}
+tasks = [
+    {
+        "id": 0,
+        "task": "Aller au match de basket",
+    },
+    {
+        "id": 1,
+        "task": "Ranger la maison"
+    }
+]
 
 
 @app.route("/tasks", methods=['GET'])
 def get_tasks():
-    return jsonify({"tasks":tasks})
+    return jsonify({"tasks": tasks})
 
 
 @app.route("/")
@@ -17,13 +23,18 @@ def home():
     return "Bienvunue sur notre site"
 
 
-@app.route("/tasks/<nom>", methods=['DELETE'])
-def del_task(nom):
-    if nom in tasks:
-        tasks.pop(nom)
-        return jsonify({"message": f" La tâche de {nom} à été supprimer"}), 200
-    else:
-        return jsonify({"error": f" aucune tâche trouvée pour {nom}"}), 404
+@app.route("/tasks/<id_to_remove>", methods=['DELETE'])
+def del_task(id_to_remove):
+    global tasks
+    new_tasks = []
+    for task in tasks:
+        if task["id"] != int(id_to_remove):
+            new_tasks.append(task)
+
+    tasks = new_tasks
+
+    return jsonify({"message": f" La tâche '{task["task"]}' à été supprimer"}), 200
+
 
 
 # @app.route("/tasks", methods=['POST'])
@@ -35,13 +46,10 @@ def del_task(nom):
 
 @app.route("/tasks", methods=['POST'])
 def add_tasks():
-    data = request.get_json()
-    nom = data.get("nom")
-    tache = data.get("tache")
-    if not nom or not tache:
-        return jsonify({"error": "champs nom et tache requis"})
-    tasks[nom] = tache
-    return jsonify({nom: tache}), 201
- 
+    task = request.get_json()
+    tasks.append(task)
+    return jsonify({"message": "La tâche à bien été ajouter"}), 201
+
+
 if __name__ == '__main__':
-        app.run(debug=True)
+    app.run(debug=True)
