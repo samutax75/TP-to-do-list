@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-
+import sqlite3
+import os
 app = Flask(__name__)
 tasks = [
     {
@@ -51,5 +52,30 @@ def add_tasks():
     return jsonify({"message": "La tâche à bien été ajouter"}), 201
 
 
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def initialize_db():
+    # Vérifie si le fichier SQLite existe déjà
+    if not os.path.exists('database.db'):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        print("Base de données créée")
+    else:
+        print("Base de données déjà existante")
+
+
 if __name__ == '__main__':
+    initialize_db()
     app.run(debug=True)
