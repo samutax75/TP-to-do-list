@@ -8,7 +8,6 @@ tasks=[]
 @app.route("/tasks", methods=['GET'])
 def get_tasks():
     conn = get_db_connection()
-    conn.row_factory = sqlite3.row
     tasks = conn.execute('SELECT * FROM tasks').fetchall()
     conn.commit()
     conn.close()
@@ -40,9 +39,10 @@ def delete_task(task_id):
 def add_tasks():
     data = request.get_json()
     title = data.get('title')
-    #done = data.get('done',False)
+    done = data.get('done',False)
     conn = get_db_connection()
-    conn.execute("INSERT INTO tasks (title) VALUES (?)", (data["title"]))
+    #conn.execute("INSERT INTO tasks (title,done) VALUES (?, ?)", (title,done))
+    conn.execute("INSERT INTO tasks (title) VALUES (?, ?)", (data["title","done"]))
     conn.commit()
     conn.close()
     return jsonify({"message": "La tâche à bien été ajouter"}), 201
