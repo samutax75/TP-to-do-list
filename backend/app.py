@@ -2,21 +2,17 @@ from flask import Flask, request, jsonify
 import sqlite3
 import os
 app = Flask(__name__)
-tasks = [
-    {
-        "id": 0,
-        "task": "Aller au match de basket",
-    },
-    {
-        "id": 1,
-        "task": "Ranger la maison"
-    }
-]
 
+tasks=[]
 
 @app.route("/tasks", methods=['GET'])
 def get_tasks():
-    return jsonify({"tasks": tasks})
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.row
+    tasks = conn.execute('SELECT * FROM tasks').fetchall()
+    conn.commit()
+    conn.close()
+    return jsonify([dict(row) for row in tasks])
 
 
 @app.route("/")
@@ -24,18 +20,13 @@ def home():
     return "Bienvunue sur notre site"
 
 
-@app.route("/tasks/<id_to_remove>", methods=['DELETE'])
-def del_task(id_to_remove):
-    global tasks
-    new_tasks = []
-    for task in tasks:
-        if task["id"] != int(id_to_remove):
-            new_tasks.append(task)
-
-    tasks = new_tasks
-
-    return jsonify({"message": f" La tâche '{task["task"]}' à été supprimer"}), 200
-
+@app.route("/tasks/<int:task_id>" , methods=['DELETE'])
+def delete_task(task_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM tasks WHERE id = ?',(task_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'massage': 'Task deleted'})
 
 
 # @app.route("/tasks", methods=['POST'])
@@ -47,8 +38,13 @@ def del_task(id_to_remove):
 
 @app.route("/tasks", methods=['POST'])
 def add_tasks():
-    task = request.get_json()
-    tasks.append(task)
+    data = request.get_json()
+    title = data.get('title')
+    #done = data.get('done',False)
+    conn = get_db_connection()
+    conn.execute("INSERT INTO tasks (title) VALUES (?)", (data["title"]))
+    conn.commit()
+    conn.close()
     return jsonify({"message": "La tâche à bien été ajouter"}), 201
 
 
