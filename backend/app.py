@@ -1,14 +1,43 @@
 from flask import Flask, request, jsonify
 import sqlite3
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
- 
-tasks =[]
+CORS(app)
+DATABASE = 'database.db'
+tasks = []
 
-@app.route("/",methods=['GET'])
+
+@app.route("/api/test")
 def home():
     return "Bienvenue sur la page d'accueil"
+
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def initialize_db():
+    # Vérifie si le fichier SQLite existe déjà
+    if not os.path.exists(DATABASE):
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL
+             )
+         ''')
+        conn.commit()
+        conn.close()
+        print("Base de données créée")
+    else:
+        print("Base de données déjà existante")
+
+
  
 @app.route("/tasks", methods=['GET'])
 def get_tasks():
@@ -36,32 +65,8 @@ def delete_task(task_id):
     return jsonify({'message': 'Task deleted'})
  
  
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
  
- 
-def initialize_db():
-     # Vérifie si le fichier SQLite existe déjà
-    if not os.path.exists('database.db'):
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL
-             )
-         ''')
-        conn.commit()
-        conn.close()
-        print("Base de données créée")
-    else:
-        print("Base de données déjà existante")
-        
- 
- 
-if __name__ == '__main__':
+if __name__ == "__main__":
     initialize_db()
-    app.run(debug=True)
+    app.run()
      
