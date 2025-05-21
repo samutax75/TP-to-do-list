@@ -36,3 +36,5 @@ async function deleteTask(id) {
 }
 
 document.addEventListener("DOMContentLoaded", loadTasks);
+
+
